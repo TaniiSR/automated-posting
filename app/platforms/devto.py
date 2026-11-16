@@ -2,10 +2,9 @@ import httpx
 
 from app.config import env
 from app.platforms.base import MissingCredentials, Platform, PlatformError, Posted, check
+from app.platforms.text import make_title
 
 API = "https://dev.to/api/articles"
-TITLE_LENGTH = 80
-FALLBACK_TITLE = "New update"
 
 
 class DevTo(Platform):
@@ -24,7 +23,7 @@ class DevTo(Platform):
                 headers={"api-key": api_key},
                 json={
                     "article": {
-                        "title": self._title(message, url),
+                        "title": make_title(message, url),
                         "body_markdown": message,
                         "published": True,
                     }
@@ -35,8 +34,3 @@ class DevTo(Platform):
         if not article_url:
             raise PlatformError("Dev.to response contained no article URL")
         return Posted(url=article_url)
-
-    @staticmethod
-    def _title(message: str, url: str) -> str:
-        title = message.replace(url, "").strip(" -:|").strip()
-        return title[:TITLE_LENGTH] or FALLBACK_TITLE

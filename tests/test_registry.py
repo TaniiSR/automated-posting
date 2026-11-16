@@ -3,7 +3,7 @@ from app.platforms.base import Platform
 from app.platforms.registry import all_platforms
 from app.services.posting_service import PostingService
 
-EXPECTED_NAMES = ["Telegraph", "Mastodon", "Bluesky", "Dev.to", "GitHub Gist", "Telegram"]
+EXPECTED_NAMES = ["Telegraph", "Mastodon", "Bluesky", "Dev.to", "GitHub Gist", "Pastebin"]
 
 
 def test_registry_contains_all_six_platforms_in_order():

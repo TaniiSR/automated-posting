@@ -1,0 +1,59 @@
+{
+  "success": true,
+  "results": [
+    {
+      "platform": "Telegraph",
+      "status": "failed",
+      "posted_url": null,
+      "public_access": false,
+      "date": null,
+      "time": null,
+      "error": "ConnectTimeout"
+    },
+    {
+      "platform": "Mastodon",
+      "status": "success",
+      "posted_url": "https://social.vivaldi.net/@tanveer61/117626314997348417",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:48",
+      "error": null
+    },
+    {
+      "platform": "Bluesky",
+      "status": "success",
+      "posted_url": "https://bsky.app/profile/did:plc:r6oejzxyppstbr45ow23tdcv/post/3n2gmj6y6c72p",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:49",
+      "error": null
+    },
+    {
+      "platform": "Dev.to",
+      "status": "success",
+      "posted_url": "https://dev.to/tanveer_munir/testing-my-automated-posting-api-375l",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:48",
+      "error": null
+    },
+    {
+      "platform": "GitHub Gist",
+      "status": "success",
+      "posted_url": "https://gist.github.com/TaniiSR/421ff4f3419b074b60b9bf252f7a4fa7",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:49",
+      "error": null
+    },
+    {
+      "platform": "Pastebin",
+      "status": "success",
+      "posted_url": "https://pastebin.com/vVQED4X0",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:34:35",
+      "error": null
+    }
+  ]
+}

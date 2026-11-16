@@ -11,9 +11,9 @@ A FastAPI service that takes one short message with a call-to-action (CTA) link 
 | **Bluesky** | AT Protocol `createSession` / `createRecord` | Handle and app password |
 | **Dev.to** | `POST /api/articles` | API key |
 | **GitHub Gist** | `POST /gists` (public gist) | Token with the `gist` scope |
-| **Telegram** | Bot API `sendMessage` to a public channel | Bot token and channel username |
+| **Pastebin** | `POST /api/api_post.php` (public paste) | API dev key |
 
-A platform with no credentials is reported as `failed` with a "Missing credentials" error. The rest still run, so the service works with any subset configured.
+A platform with no credentials is reported as `failed` with a "Missing credentials" error. The rest still run, so the service works with any subset configured. Telegraph needs no credentials at all.
 
 No LLM platform is included: the major LLM providers expose no public API for publishing a post, only for generating text.
 
@@ -41,8 +41,7 @@ Fill in the values you have in `.env`. Never commit `.env`; it is listed in `.gi
 | `BLUESKY_APP_PASSWORD` | Settings, Privacy and security, App passwords. Use an app password, not your account password. |
 | `DEVTO_API_KEY` | Settings, Extensions, Generate API key. |
 | `GITHUB_TOKEN` | Settings, Developer settings, Personal access tokens. Give it the `gist` scope only. |
-| `TELEGRAM_BOT_TOKEN` | Message `@BotFather`, send `/newbot`, copy the token. |
-| `TELEGRAM_CHAT_ID` | A public channel such as `@my_channel`, with the bot added as an administrator. |
+| `PASTEBIN_API_KEY` | Log in to Pastebin and open https://pastebin.com/doc_api. Your "API Development Key" is shown there. |
 | `REQUEST_TIMEOUT` | Seconds to wait for each platform. Default 20. |
 
 ## Run
@@ -82,7 +81,7 @@ curl -X POST http://localhost:4000/posting \
 
 The status code is 200 whenever the request was valid, even if some or all platforms failed. Look at each result for the outcome. `success` is `true` when at least one platform posted.
 
-The values below show the response format.
+Real output from a live run (see [Live results](#live-results)):
 
 ```json
 {
@@ -90,21 +89,57 @@ The values below show the response format.
   "results": [
     {
       "platform": "Telegraph",
-      "status": "success",
-      "posted_url": "https://telegra.ph/Check-out-our-latest-business-11-15",
-      "public_access": true,
-      "date": "2026-11-15",
-      "time": "10:30:00",
-      "error": null
-    },
-    {
-      "platform": "Mastodon",
       "status": "failed",
       "posted_url": null,
       "public_access": false,
       "date": null,
       "time": null,
-      "error": "Missing credentials: set MASTODON_ACCESS_TOKEN"
+      "error": "ConnectTimeout"
+    },
+    {
+      "platform": "Mastodon",
+      "status": "success",
+      "posted_url": "https://social.vivaldi.net/@tanveer61/117626314997348417",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:48",
+      "error": null
+    },
+    {
+      "platform": "Bluesky",
+      "status": "success",
+      "posted_url": "https://bsky.app/profile/did:plc:r6oejzxyppstbr45ow23tdcv/post/3n2gmj6y6c72p",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:49",
+      "error": null
+    },
+    {
+      "platform": "Dev.to",
+      "status": "success",
+      "posted_url": "https://dev.to/tanveer_munir/testing-my-automated-posting-api-375l",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:48",
+      "error": null
+    },
+    {
+      "platform": "GitHub Gist",
+      "status": "success",
+      "posted_url": "https://gist.github.com/TaniiSR/421ff4f3419b074b60b9bf252f7a4fa7",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:18:49",
+      "error": null
+    },
+    {
+      "platform": "Pastebin",
+      "status": "success",
+      "posted_url": "https://pastebin.com/vVQED4X0",
+      "public_access": true,
+      "date": "2026-11-16",
+      "time": "18:34:35",
+      "error": null
     }
   ]
 }
@@ -139,6 +174,64 @@ curl -X POST http://localhost:4000/posting \
 }
 ```
 
+## Live results
+
+The service was run against the real platforms with the message `Testing my automated posting API https://example.com`. The full JSON output is shown under [Response (200)](#response-200), and is also saved in [`docs/live-results.json`](docs/live-results.json). The server log is below and in [`docs/server.log`](docs/server.log).
+
+| Platform | Status | Public | Posted URL |
+|---|---|---|---|
+| Mastodon (Vivaldi Social) | Success | Yes | https://social.vivaldi.net/@tanveer61/117626314997348417 |
+| Bluesky | Success | Yes | https://bsky.app/profile/did:plc:r6oejzxyppstbr45ow23tdcv/post/3n2gmj6y6c72p |
+| Dev.to | Success | Yes | https://dev.to/tanveer_munir/testing-my-automated-posting-api-375l |
+| GitHub Gist | Success | Yes | https://gist.github.com/TaniiSR/421ff4f3419b074b60b9bf252f7a4fa7 |
+| Pastebin | Success | Yes | https://pastebin.com/vVQED4X0 |
+| Telegraph | Failed | No | `ConnectTimeout`: the test network could not reach `api.telegra.ph` |
+
+### Screenshots
+
+Each post as it appears on the platform.
+
+**Mastodon (Vivaldi Social)**
+
+![Mastodon post](docs/screenshots/mastodon.webp)
+
+**Bluesky**
+
+![Bluesky post](docs/screenshots/bluesky.png)
+
+**Dev.to**
+
+![Dev.to post](docs/screenshots/devto.webp)
+
+**GitHub Gist**
+
+![GitHub Gist post](docs/screenshots/github-gist.webp)
+
+**Pastebin**
+
+![Pastebin post](docs/screenshots/pastebin.webp)
+
+### Server log
+
+Log from the run above (`docs/server.log`). The single `POST /posting` request returned 200:
+
+```
+INFO:     Started server process [17622]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:4000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50355 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50357 - "POST /posting HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [17622]
+```
+
+Five platforms published successfully. Telegraph failed only because the network used for the test blocks Telegraph and Telegram, and the service reported that failure without stopping the other platforms.
+
+Two platforms were tried and replaced during development. Write.as accepted the request but replaced the post with its "Blocked Post" placeholder, which the service now reports as a failure. Hashnode retired its free API. Pastebin was added in their place, and its result comes from a second run made after the swap.
+
 ## Tests
 
 ```bash
@@ -157,7 +250,7 @@ app/
   platforms/
     base.py                Platform interface and shared error handling
     registry.py            The list of platforms used by the app
-    telegraph.py  mastodon.py  bluesky.py  devto.py  gist.py  telegram.py
+    telegraph.py  mastodon.py  bluesky.py  devto.py  gist.py  pastebin.py
   services/
     posting_service.py     Runs all platforms concurrently and collects results
 tests/                     One test file per module, plus end-to-end tests

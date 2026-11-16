@@ -16,8 +16,7 @@ ENV = {
     "BLUESKY_APP_PASSWORD": "b-pass",
     "DEVTO_API_KEY": "d-key",
     "GITHUB_TOKEN": "g-token",
-    "TELEGRAM_BOT_TOKEN": "1:abc",
-    "TELEGRAM_CHAT_ID": "@chan",
+    "PASTEBIN_API_KEY": "p-key",
 }
 
 POSTED = {
@@ -26,7 +25,7 @@ POSTED = {
     "Bluesky": "https://bsky.app/profile/did:plc:x/post/3k",
     "Dev.to": "https://dev.to/me/p",
     "GitHub Gist": "https://gist.github.com/me/g",
-    "Telegram": "https://t.me/chan/9",
+    "Pastebin": "https://pastebin.com/AbC123xy",
 }
 
 
@@ -54,9 +53,8 @@ def fake_internet(failing_hosts=(), dead_posts=()):
             return httpx.Response(201, json={"url": POSTED["Dev.to"]})
         if host == "api.github.com":
             return httpx.Response(201, json={"html_url": POSTED["GitHub Gist"]})
-        if host == "api.telegram.org":
-            body = {"ok": True, "result": {"message_id": 9, "chat": {"username": "chan"}}}
-            return httpx.Response(200, json=body)
+        if host == "pastebin.com":
+            return httpx.Response(200, text=POSTED["Pastebin"])
         return httpx.Response(418)
 
     return httpx.AsyncClient(transport=httpx.MockTransport(handler))
@@ -114,7 +112,7 @@ def test_failing_platforms_do_not_stop_the_rest(full_credentials):
     assert by_name["Dev.to"]["status"] == "failed"
     assert "HTTP 500" in by_name["Dev.to"]["error"]
     assert by_name["GitHub Gist"]["status"] == "failed"
-    for name in ("Telegraph", "Mastodon", "Bluesky", "Telegram"):
+    for name in ("Telegraph", "Mastodon", "Bluesky", "Pastebin"):
         assert by_name[name]["status"] == "success"
 
 
@@ -125,7 +123,7 @@ def test_with_no_credentials_only_telegraph_posts(no_credentials):
     by_name = {r["platform"]: r for r in body["results"]}
     assert body["success"] is True
     assert by_name["Telegraph"]["status"] == "success"
-    for name in ("Mastodon", "Bluesky", "Dev.to", "GitHub Gist", "Telegram"):
+    for name in ("Mastodon", "Bluesky", "Dev.to", "GitHub Gist", "Pastebin"):
         assert by_name[name]["status"] == "failed"
         assert by_name[name]["error"].startswith("Missing credentials")
 
