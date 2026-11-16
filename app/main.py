@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from app.platforms.registry import all_platforms
 from app.schemas import PostingRequest, PostingResponse
 from app.services.posting_service import PostingService
 
@@ -12,7 +13,7 @@ app = FastAPI(
 
 
 def get_service() -> PostingService:
-    return PostingService([])
+    return PostingService(all_platforms())
 
 
 @app.post("/posting", response_model=PostingResponse)
