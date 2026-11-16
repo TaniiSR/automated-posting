@@ -1,4 +1,5 @@
 import re
+from typing import Literal, Optional
 from urllib.parse import urlparse
 
 from pydantic import BaseModel, field_validator
@@ -44,3 +45,18 @@ class PostingRequest(BaseModel):
     @property
     def url(self) -> str:
         return extract_urls(self.message)[0]
+
+
+class PlatformResult(BaseModel):
+    platform: str
+    status: Literal["success", "failed"]
+    posted_url: Optional[str] = None
+    public_access: bool = False
+    date: Optional[str] = None
+    time: Optional[str] = None
+    error: Optional[str] = None
+
+
+class PostingResponse(BaseModel):
+    success: bool
+    results: list[PlatformResult]
