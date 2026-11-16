@@ -139,3 +139,8 @@ def test_readme_embeds_every_screenshot(readme):
     for name, path in screenshot_files().items():
         reference = f"docs/screenshots/{path.name}"
         assert f"]({reference})" in readme, f"README does not embed {reference}"
+
+
+def test_gitignore_keeps_editor_settings_out_of_the_repo():
+    lines = (ROOT / ".gitignore").read_text().splitlines()
+    assert ".vscode/" in lines
